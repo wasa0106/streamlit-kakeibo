@@ -56,6 +56,10 @@ def display_timeline(df, category, months, monthly_budget):
     # データが存在する日付までの累積支出だけをプロットする DataFrame
     spend_daily = daily[daily['日付'] <= last_date].copy()
 
+    # 予算線の終了日を決定
+    budget_line_end_date = last_date if last_date < end_of_this_month else end_of_this_month
+    budget_daily = daily[daily['日付'] <= budget_line_end_date].copy()
+
     # 折れ線グラフ（記入されている日付までのみプロット）
     line_chart = alt.Chart(spend_daily).mark_line(point=True, color='blue').encode(
         x=alt.X('日付ラベル:O', title='日付', axis=alt.Axis(labelAngle=-45)),
@@ -64,15 +68,17 @@ def display_timeline(df, category, months, monthly_budget):
     )
 
     # 予算線
-    budget_line = alt.Chart(daily).mark_line(strokeDash=[5,5], color='orange').encode(
+    budget_line = alt.Chart(budget_daily).mark_line(strokeDash=[5,5], color='orange').encode(
         x='日付ラベル:O',
         y=alt.Y('予算:Q', title='累積金額（円）'),
         tooltip=['日付ラベル', '予算']
     )
 
     # 予算線と支出線をレイヤーして表示
+    # チャートのタイトルも budget_line_end_date を使用して調整
+    chart_title_end_date = budget_line_end_date
     chart = alt.layer(line_chart, budget_line).resolve_scale(y='shared').properties(
-        title=f"{start_month.strftime('%Y-%m-%d')} 〜 {all_dates[-1].strftime('%Y-%m-%d')} の累積支出"
+        title=f"{start_month.strftime('%Y-%m-%d')} 〜 {chart_title_end_date.strftime('%Y-%m-%d')} の累積支出"
     )
 
     st.altair_chart(chart, use_container_width=True)

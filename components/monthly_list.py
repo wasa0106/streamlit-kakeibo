@@ -54,8 +54,8 @@ def display_monthly_list(df, category, num_months):
     # 月を「YYYY年M月」形式に変換
     monthly_summary['月'] = monthly_summary['月'].apply(lambda x: f"{x.year}年{x.month}月")
 
-    # 月が若い順にソート
-    monthly_summary = monthly_summary.sort_values('月').reset_index(drop=True)
+    # 月が新しい順にソート
+    monthly_summary = monthly_summary.sort_values('月', ascending=False).reset_index(drop=True)
 
     # 列の順番を指定（「月」と「詳細」だけ表示）
     monthly_summary = monthly_summary[['月', '詳細']]

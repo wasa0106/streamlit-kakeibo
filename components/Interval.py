@@ -25,7 +25,7 @@ def display_interval_card(df, category, recommended_days):
         days_diff = (today - latest_date).days
 
         # days_diffの色分岐
-        color = "#1976d2" if days_diff > recommended_days else "#d32f2f"  # 青 or 赤
+        color = "#2CA02C" if days_diff > recommended_days else "#d32f2f"  # 緑 or 赤
 
         # カード形式で表示
         st.markdown(
