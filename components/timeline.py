@@ -3,20 +3,22 @@ import streamlit as st
 import altair as alt
 from datetime import datetime
 
-def display_timeline(df, category, months, monthly_budget):
+def display_timeline(df, categories, months, monthly_budget):
     """
     指定カテゴリ・掲載期間・月間予算で時系列折れ線グラフを表示
 
     Parameters:
     - df: pandas DataFrame
-    - category: str, 表示したいカテゴリ名
+    - categories: list[str] or str, 表示したいカテゴリ名またはカテゴリ名のリスト
     - months: int, 掲載期間（月単位、1なら今月のみ、2なら今月と先月をまとめて）
     - monthly_budget: int, 月間予算（円）
     """
     # 日付をdatetime型に変換
     df['日付'] = pd.to_datetime(df['日付'], errors='coerce')
     # カテゴリでフィルタ
-    filtered_df = df[df['カテゴリ'] == category].copy()
+    if isinstance(categories, str):
+        categories = [categories]
+    filtered_df = df[df['カテゴリ'].isin(categories)].copy()
     filtered_df = filtered_df.dropna(subset=['日付'])
 
     # 掲載期間（月単位）でフィルタ

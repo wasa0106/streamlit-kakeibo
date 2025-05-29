@@ -1,17 +1,19 @@
 import pandas as pd
 import streamlit as st
 
-def display_filtered_data(df, category, num_items):
+def display_filtered_data(df, categories, num_items):
     """
     指定されたカテゴリに一致するデータを新しい順で表示し、表示する個数を設定できる関数。
 
     Parameters:
     - df: pandas DataFrame, データフレーム
-    - category: str, 表示したいカテゴリ名
+    - categories: list[str] or str, 表示したいカテゴリ名またはカテゴリ名のリスト
     - num_items: int, 表示するデータの個数
     """
     # カテゴリでフィルタリング
-    filtered_df = df[df['カテゴリ'] == category]
+    if isinstance(categories, str):
+        categories = [categories]
+    filtered_df = df[df['カテゴリ'].isin(categories)]
 
     # 日付でソート（新しい順）
     filtered_df = filtered_df.sort_values(by='日付', ascending=False)
