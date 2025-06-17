@@ -23,9 +23,9 @@ def display_timeline(df, categories, months, monthly_budget):
 
     # 掲載期間（月単位）でフィルタ
     now = datetime.now()
-    this_month = now.replace(day=1)
-    start_month = (this_month - pd.DateOffset(months=months-1)).replace(day=1)
-    end_month = (this_month + pd.DateOffset(months=1)) - pd.Timedelta(days=1)
+    this_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    start_month = (this_month - pd.DateOffset(months=months-1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    end_month = ((this_month + pd.DateOffset(months=1)) - pd.Timedelta(days=1)).replace(hour=23, minute=59, second=59, microsecond=999999)
     mask = (filtered_df['日付'] >= start_month) & (filtered_df['日付'] <= end_month)
     period_df = filtered_df[mask].copy()
 
@@ -40,14 +40,34 @@ def display_timeline(df, categories, months, monthly_budget):
 
     # 期間内の日付リスト
     last_date = period_df['日付'].max()
-    # 今月の末日を取得
-    end_of_this_month = (now.replace(day=1) + pd.DateOffset(months=1)) - pd.Timedelta(days=1)
-    # 期間の終了日を「今月末日」とする
-    all_dates = pd.date_range(start=period_df['日付'].min(), end=end_of_this_month)
+
+    # months=1の場合は今月固定、それ以外は複数月対応
+    if months == 1:
+        # 今月初日から今月末日まで固定
+        start_of_period = this_month
+        end_of_period = end_month
+    else:
+        # 複数月の場合は期間フィルタと同じ範囲
+        start_of_period = start_month
+        end_of_period = end_month
+
+    all_dates = pd.date_range(start=start_of_period, end=end_of_period)
 
     # 日ごと累積金額（データがない日は直前の累積値を維持）
-    daily = period_df.groupby('日付').agg({'累積金額':'last'}).reindex(all_dates, method='ffill').fillna(0).reset_index()
+    daily = period_df.groupby('日付').agg({'累積金額':'last'}).reindex(all_dates, method='ffill').reset_index()
     daily.columns = ['日付', '累積金額']
+    
+    # 最初の日付より前の0値を除去し、最後の入力日以降は最後の累積値を維持
+    if not daily.empty and daily['累積金額'].notna().any():
+        # 最初のデータがある日より前は0のまま
+        first_data_idx = daily['累積金額'].first_valid_index()
+        if first_data_idx is not None:
+            daily.loc[:first_data_idx-1, '累積金額'] = 0
+        
+        # 最後のデータがある日以降は最後の累積値で埋める
+        daily['累積金額'] = daily['累積金額'].fillna(method='ffill').fillna(0)
+    else:
+        daily['累積金額'] = daily['累積金額'].fillna(0)
     daily['日付ラベル'] = daily['日付'].dt.strftime('%Y-%m-%d')
 
     # 予算線（全月分合計）
@@ -55,10 +75,11 @@ def display_timeline(df, categories, months, monthly_budget):
     total_budget = monthly_budget * months
     daily['予算'] = [(total_budget / total_days) * (i+1) for i in range(total_days)]
 
-    # データが存在する日付までの累積支出だけをプロットする DataFrame
-    spend_daily = daily[daily['日付'] <= last_date].copy()
+    # 今日までの累積支出をプロットする DataFrame
+    today = pd.Timestamp(datetime.now().date())
+    spend_daily = daily[daily['日付'] <= today].copy()
 
-    # 折れ線グラフ（記入されている日付までのみプロット）
+    # 折れ線グラフ（今日までをプロット）
     line_chart = alt.Chart(spend_daily).mark_line(point=True, color='blue').encode(
         x=alt.X('日付ラベル:O', title='日付', axis=alt.Axis(labelAngle=-45)),
         y=alt.Y('累積金額:Q', title='累積金額（円）'),
@@ -74,7 +95,7 @@ def display_timeline(df, categories, months, monthly_budget):
 
     # 予算線と支出線をレイヤーして表示
     chart = alt.layer(line_chart, budget_line).resolve_scale(y='shared').properties(
-        title=f"{start_month.strftime('%Y-%m-%d')} 〜 {all_dates[-1].strftime('%Y-%m-%d')} の累積支出"
+        title=f"{start_of_period.strftime('%Y-%m-%d')} 〜 {end_of_period.strftime('%Y-%m-%d')} の累積支出"
     )
 
     st.altair_chart(chart, use_container_width=True)
