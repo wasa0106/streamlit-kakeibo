@@ -27,8 +27,36 @@ def display_filtered_data(df, categories, num_items):
     # 金額のフォーマット変換
     filtered_df['金額'] = filtered_df['金額'].apply(lambda x: f"¥{x:,}")
 
-    # 指定された個数だけ表示
-    st.write(filtered_df.head(num_items))
+    # 指定された個数だけ取得
+    display_df = filtered_df.head(num_items).copy()
+    
+    # スタイリングを適用
+    styled = display_df.style.set_properties(**{
+        'font-size': '14px',
+        'padding': '8px'
+    }).set_table_styles([
+        {'selector': 'th', 'props': [
+            ('background-color', '#F7F8FA'),
+            ('font-weight', '600'),
+            ('text-align', 'left'),
+            ('padding', '10px'),
+            ('border-bottom', '2px solid #E8EAED'),
+            ('font-size', '13px')
+        ]},
+        {'selector': 'td', 'props': [
+            ('border-bottom', '1px solid #F0F2F4')
+        ]},
+        {'selector': 'tr:hover', 'props': [
+            ('background-color', '#F7F8FA')
+        ]},
+        {'selector': 'td:last-child', 'props': [
+            ('text-align', 'right'),
+            ('font-family', "'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace")
+        ]}
+    ])
+    
+    # 表示
+    st.dataframe(styled, use_container_width=True, hide_index=True)
 
 # 使用例
 # df = load_data(google_sheet_csv_url)  # app.py でデータを読み込む

@@ -60,10 +60,28 @@ def display_monthly_list(df, category, num_months):
     # 列の順番を指定（「月」と「詳細」だけ表示）
     monthly_summary = monthly_summary[['月', '詳細']]
 
-    # 右寄せスタイルを適用
+    # スタイリングを適用
     styled = monthly_summary.style.set_properties(**{
-        'text-align': 'right'
-    })
+        'text-align': 'right',
+        'font-family': "'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace",
+        'font-size': '14px',
+        'padding': '10px'
+    }).set_table_styles([
+        {'selector': 'th', 'props': [
+            ('background-color', '#F7F8FA'),
+            ('font-weight', '600'),
+            ('text-align', 'right'),
+            ('padding', '12px'),
+            ('border-bottom', '2px solid #E8EAED'),
+            ('font-size', '14px')
+        ]},
+        {'selector': 'td', 'props': [
+            ('border-bottom', '1px solid #F0F2F4')
+        ]},
+        {'selector': 'tr:hover', 'props': [
+            ('background-color', '#F7F8FA')
+        ]}
+    ])
 
     # 表を表示（st.dataframeでStylerを使う）
-    st.dataframe(styled, use_container_width=True)
+    st.dataframe(styled, use_container_width=True, hide_index=True)

@@ -80,22 +80,65 @@ def display_timeline(df, categories, months, monthly_budget):
     spend_daily = daily[daily['日付'] <= today].copy()
 
     # 折れ線グラフ（今日までをプロット）
-    line_chart = alt.Chart(spend_daily).mark_line(point=True, color='blue').encode(
-        x=alt.X('日付ラベル:O', title='日付', axis=alt.Axis(labelAngle=-45)),
-        y=alt.Y('累積金額:Q', title='累積金額（円）'),
-        tooltip=['日付ラベル', '累積金額']
+    line_chart = alt.Chart(spend_daily).mark_line(
+        point=True, 
+        color='#769CDF',
+        strokeWidth=3,
+        opacity=0.9
+    ).encode(
+        x=alt.X('日付ラベル:O', 
+                title='日付', 
+                axis=alt.Axis(
+                    labelAngle=-45,
+                    labelFontSize=11,
+                    titleFontSize=12,
+                    grid=False
+                )),
+        y=alt.Y('累積金額:Q', 
+                title='累積金額（円）',
+                axis=alt.Axis(
+                    labelFontSize=11,
+                    titleFontSize=12,
+                    grid=True,
+                    gridColor='#F0F2F4',
+                    gridDash=[2, 2]
+                )),
+        tooltip=[
+            alt.Tooltip('日付ラベル', title='日付'),
+            alt.Tooltip('累積金額:Q', title='支出累計', format=',.0f')
+        ]
     )
 
     # 予算線
-    budget_line = alt.Chart(daily).mark_line(strokeDash=[5,5], color='orange').encode(
+    budget_line = alt.Chart(daily).mark_line(
+        strokeDash=[8, 4], 
+        color='#EA4335',
+        strokeWidth=2,
+        opacity=0.7
+    ).encode(
         x='日付ラベル:O',
         y=alt.Y('予算:Q', title='累積金額（円）'),
-        tooltip=['日付ラベル', '予算']
+        tooltip=[
+            alt.Tooltip('日付ラベル', title='日付'),
+            alt.Tooltip('予算:Q', title='予算累計', format=',.0f')
+        ]
     )
 
     # 予算線と支出線をレイヤーして表示
     chart = alt.layer(line_chart, budget_line).resolve_scale(y='shared').properties(
-        title=f"{start_of_period.strftime('%Y-%m-%d')} 〜 {end_of_period.strftime('%Y-%m-%d')} の累積支出"
+        title=f"{start_of_period.strftime('%Y-%m-%d')} 〜 {end_of_period.strftime('%Y-%m-%d')} の累積支出",
+        width=800,
+        height=400
+    ).configure_view(
+        strokeWidth=0
+    ).configure_axis(
+        labelFont='sans-serif',
+        titleFont='sans-serif'
+    ).configure_title(
+        fontSize=16,
+        font='sans-serif',
+        anchor='start',
+        color='#1A1A1A'
     )
 
     st.altair_chart(chart, use_container_width=True)

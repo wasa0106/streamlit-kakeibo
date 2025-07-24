@@ -1,0 +1,18 @@
+[theme]
+# Primary color for interactive elements
+primaryColor = "#769CDF"
+
+# Background color for the main content area
+backgroundColor = "#FFFFFF"
+
+# Background color for sidebar and most interactive widgets
+secondaryBackgroundColor = "#F7F8FA"
+
+# Color used for almost all text
+textColor = "#1A1A1A"
+
+# Font family for all text
+font = "sans serif"
+
+# Base styling
+base = "light"

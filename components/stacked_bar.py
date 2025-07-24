@@ -39,18 +39,68 @@ def display_stacked_bar(df, categories, months=6, color_map=None):
     # 月の順序を左が古いように設定
     grouped['月'] = pd.Categorical(grouped['月'], categories=month_list, ordered=True)
 
-    # 色指定
+    # 色指定を新しいカラーパレットに更新
+    updated_color_map = {
+        '医療費': '#769CDF',      # メインカラー
+        '日用品': '#5E88D1',      # メインカラーの濃い版
+        '交通費': '#34A853',      # グリーン
+        '交際費': '#EA4335',      # レッド
+        '本・教材': '#9C27B0',    # パープル
+        '美容': '#E91E63',        # ピンク
+        'イベント': '#795548',    # ブラウン
+    }
+    
+    # 既存のcolor_mapがある場合は、updated_color_mapで更新
     if color_map:
-        color = alt.Color('カテゴリ:N', scale=alt.Scale(domain=list(color_map.keys()), range=list(color_map.values())))
-    else:
-        color = 'カテゴリ:N'
+        updated_color_map.update(color_map)
+    
+    color = alt.Color('カテゴリ:N', 
+                     scale=alt.Scale(domain=list(updated_color_map.keys()), 
+                                   range=list(updated_color_map.values())),
+                     legend=alt.Legend(orient='bottom', 
+                                     titleFontSize=12,
+                                     labelFontSize=11))
 
     # Altairで積み上げ棒グラフ作成
-    chart = alt.Chart(grouped).mark_bar().encode(
-        x=alt.X('月:N', sort=month_list, title='月'),
-        y=alt.Y('金額:Q', title='金額'),
+    chart = alt.Chart(grouped).mark_bar(
+        cornerRadiusTopLeft=4,
+        cornerRadiusTopRight=4
+    ).encode(
+        x=alt.X('月:N', 
+                sort=month_list, 
+                title='月',
+                axis=alt.Axis(
+                    labelAngle=0,
+                    labelFontSize=11,
+                    titleFontSize=12,
+                    grid=False
+                )),
+        y=alt.Y('金額:Q', 
+                title='金額（円）',
+                axis=alt.Axis(
+                    labelFontSize=11,
+                    titleFontSize=12,
+                    grid=True,
+                    gridColor='#F0F2F4',
+                    gridDash=[2, 2],
+                    format=',.0f'
+                )),
         color=color,
-        tooltip=['月', 'カテゴリ', '金額']
+        tooltip=[
+            alt.Tooltip('月', title='月'),
+            alt.Tooltip('カテゴリ', title='カテゴリ'),
+            alt.Tooltip('金額:Q', title='金額', format=',.0f')
+        ]
+    ).properties(
+        height=400
+    ).configure_view(
+        strokeWidth=0
+    ).configure_axis(
+        labelFont='sans-serif',
+        titleFont='sans-serif'
+    ).configure_legend(
+        labelFont='sans-serif',
+        titleFont='sans-serif'
     )
 
     st.altair_chart(chart, use_container_width=True)

@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 from datetime import datetime
+from .styles import get_metric_card_style, get_number_style
 
 def display_interval_card(df, category, recommended_days):
     """
@@ -25,16 +26,21 @@ def display_interval_card(df, category, recommended_days):
         days_diff = (today - latest_date).days
 
         # days_diffの色分岐
-        color = "#1976d2" if days_diff > recommended_days else "#d32f2f"  # 青 or 赤
+        status_color = "#EA4335" if days_diff <= recommended_days else "#769CDF"
+        card_color = "#EA4335" if days_diff <= recommended_days else "#769CDF"
 
         # カード形式で表示
         st.markdown(
             f"""
-            <div style="border:1px solid #ccc; border-radius:5px; padding:10px; background:#f9f9f9; text-align:center;">
-                <h2>
-                    <span style="color:{color};">{days_diff}</span> / {recommended_days} 日
-                </h2>
-                <p>{latest_date.strftime('%Y-%m-%d')} ： {str(latest_memo)}</p>
+            <div style="{get_metric_card_style(card_color)}">
+                <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 2.5rem; font-weight: 600; color: {status_color}; {get_number_style()}">{days_diff}</span>
+                    <span style="font-size: 1.25rem; color: #5F6368;">/ {recommended_days} 日</span>
+                </div>
+                <div style="color: #5F6368; font-size: 0.875rem;">
+                    <span style="margin-right: 8px;">{latest_date.strftime('%Y-%m-%d')}</span>
+                    <span>{str(latest_memo)}</span>
+                </div>
             </div>
             """,
             unsafe_allow_html=True
