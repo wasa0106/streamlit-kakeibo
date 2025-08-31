@@ -211,7 +211,7 @@ if df is not None:
     st.subheader("晩酌・外食・カフェ")
     col1, col2 = st.columns(2)
     with col1:
-        display_interval_card(df, '晩酌・外食・カフェ', 3)
+        display_interval_card(df, '晩酌・外食・カフェ', 7)
     with col2:
         display_daily_budget(df, '晩酌・外食・カフェ', 8000)
     display_timeline(df, '晩酌・外食・カフェ', 1, 8000)
