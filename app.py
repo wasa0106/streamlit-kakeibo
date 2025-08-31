@@ -10,6 +10,7 @@ from components.Interval import display_interval_card
 from components.timeline import display_timeline
 from components.monthly_list import display_monthly_list
 from components.stacked_bar import display_stacked_bar
+from components.daily_budget import display_daily_budget
 from components.styles import apply_custom_css
 from dateutil.relativedelta import relativedelta
 
@@ -113,20 +114,19 @@ if df is not None:
 
     # カテゴリと予算
     categories = [
-        '食料', '日用品', '医療費', '交際費', '交通費', '本・教材', '設備', '趣味', '飲料・軽食', '外食', 'カフェ', '美容', 'イベント', 'その他'
+        '食料', '日用品', '医療費', '交際費', '交通費', '本・教材', '設備', '趣味', '飲料・軽食', '晩酌・外食・カフェ', '美容', 'イベント', 'その他'
     ]
     budgets = {
-        '食料': 25000,
+        '食料': 30000,
         '日用品': 2000,
-        '医療費': 8000,
+        '医療費': 12000,
         '交際費': 35000,
-        '交通費': 5000,
-        '本・教材': 4500,
+        '交通費': 6000,
+        '本・教材': 3000,
         '設備': 2500,
         '趣味': 3000,
         '飲料・軽食': 2000,
-        '外食': 6000,
-        'カフェ': 6000,
+        '晩酌・外食・カフェ': 8000,
         '美容': 11000
     }
 
@@ -134,7 +134,7 @@ if df is not None:
     selected_categories = st.multiselect(
         "",
         categories,
-        default=['飲料・軽食', '交際費', '本・教材','カフェ', '外食', '趣味', '美容']
+        default=['飲料・軽食', '交際費', '本・教材','晩酌・外食・カフェ', '趣味', '美容']
     )
 
 
@@ -199,23 +199,24 @@ if df is not None:
 
     # 食料
     st.subheader("食料")
-    display_interval_card(df, '食料', 3)
-    display_timeline(df, '食料', 1, 25000)
+    col1, col2 = st.columns(2)
+    with col1:
+        display_interval_card(df, '食料', 2)
+    with col2:
+        display_daily_budget(df, '食料', 30000)
+    display_timeline(df, '食料', 1, 30000)
     display_monthly_list(df, '食料', 3)
 
-    # カフェ
-    st.subheader("カフェ")
-    display_interval_card(df, 'カフェ', 3)
-    display_timeline(df, 'カフェ', 1, 6000)
-    display_filtered_data(df, 'カフェ', 3)
-    display_monthly_list(df, 'カフェ', 3)
-
-    # 外食
-    st.subheader("外食")
-    display_interval_card(df, '外食', 8)
-    display_timeline(df, '外食', 1, 6000)
-    display_filtered_data(df, '外食', 3)
-    display_monthly_list(df, '外食', 3)
+    # 晩酌・外食・カフェ
+    st.subheader("晩酌・外食・カフェ")
+    col1, col2 = st.columns(2)
+    with col1:
+        display_interval_card(df, '晩酌・外食・カフェ', 3)
+    with col2:
+        display_daily_budget(df, '晩酌・外食・カフェ', 8000)
+    display_timeline(df, '晩酌・外食・カフェ', 1, 8000)
+    display_filtered_data(df, '晩酌・外食・カフェ', 3)
+    display_monthly_list(df, '晩酌・外食・カフェ', 3)
 
     # 趣味
     st.subheader("趣味")
