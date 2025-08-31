@@ -126,7 +126,7 @@ if df is not None:
         '設備': 2500,
         '趣味': 3000,
         '飲料・軽食': 2000,
-        '晩酌・外食・カフェ': 8000,
+        '晩酌・外食・カフェ': 6000,
         '美容': 11000
     }
 
@@ -213,8 +213,8 @@ if df is not None:
     with col1:
         display_interval_card(df, '晩酌・外食・カフェ', 7)
     with col2:
-        display_daily_budget(df, '晩酌・外食・カフェ', 8000)
-    display_timeline(df, '晩酌・外食・カフェ', 1, 8000)
+        display_daily_budget(df, '晩酌・外食・カフェ', 6000)
+    display_timeline(df, '晩酌・外食・カフェ', 1, 6000)
     display_filtered_data(df, '晩酌・外食・カフェ', 3)
     display_monthly_list(df, '晩酌・外食・カフェ', 3)
 
